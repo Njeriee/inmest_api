@@ -25,6 +25,7 @@ SECRET_KEY = 'django-insecure-+5denihl2xp^lx#t1c$&p5uge1lp_-64p$v2*u_mwacx--ltkw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# specify URLs that can connect to the app here
 ALLOWED_HOSTS = []
 
 
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+# manage response and security here
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
