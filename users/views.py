@@ -48,4 +48,5 @@ class QueryView(View):
     def get(self,request):
         return JsonResponse({"result":users})
     
-    # def post():
+    def post(self,request):
+        return JsonResponse({"status":"ok"})
