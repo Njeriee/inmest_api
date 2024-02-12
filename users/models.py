@@ -14,13 +14,13 @@ class IMUser (models.Model):
 class Cohort(models.Model):
     name = models.CharField(max_length = 50)
     description = models.TextField()
-    year = models.PositiveIntegerField(max_length = 4)
+    year = models.PositiveIntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
     is_active = models.BooleanField()
     date_created = models.DateTimeField(auto_now_add=True,blank = True,null = True)
     date_modified = models.DateTimeField(auto_now=True,blank = True,null = True)
-    author = models.ForeignKey(IMUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='cohort_author')
 
     def __str__(self):
         return f"{self.name}"
@@ -31,7 +31,7 @@ class CohortMember(models.Model):
     is_active = models.BooleanField()
     date_created = models.DateTimeField(auto_now_add=True,blank = True,null = True)
     date_modified = models.DateTimeField(auto_now=True,blank = True,null = True)
-    author = models.ForeignKey(IMUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='cohort_member_author')
 
     def __str__(self):
         return f"{self.name}"

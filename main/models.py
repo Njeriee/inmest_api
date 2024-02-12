@@ -32,20 +32,20 @@ class ClassAttendance(models.Model):
     attendee = models.ForeignKey(IMUser, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True,blank = True,null = True)
     date_modified = models.DateTimeField(auto_now=True,blank = True,null = True)
-    author = models.ForeignKey(IMUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='class_attendance_author')
 
     def __str__(self):
         return f"{self.name}"
 
 class Query(models.Model):
     title = models.CharField(max_length = 100)
-    description = models.Textfield()
-    submitted_by = models.ForeignKey(IMUser, on_delete=models.CASCADE)
-    assigned_to = models.ForeignKey(IMUser, on_delete=models.CASCADE)
+    description = models.TextField()
+    submitted_by = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='query_submitter')
+    assigned_to = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='query_assignee')
     resolution_status = models.TextChoices("PENDING","IN_PROGRESS","DECLINED","RESOLVED")
     date_created = models.DateTimeField(auto_now_add=True,blank = True,null = True)
     date_modified = models.DateTimeField(auto_now=True,blank = True,null = True)
-    author = models.ForeignKey(IMUser, on_delete=models.CASCADE)
+    author = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='query_author')
 
     def __str__(self):
         return f"{self.name}"
