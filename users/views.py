@@ -1,74 +1,42 @@
-from django.http import JsonResponse
 from django.shortcuts import render
-from django.views import View
-
-
-from users.models import IMUser
+from .models import *
+from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
+from django.db.models import Q
+from django.contrib.auth import authenticate, login
+from rest_framework.views import APIView
+from rest_framework import viewsets
+from rest_framework.decorators import api_view, permission_classes, action
 
 # Create your views here.
 
-users = [
-    {
-        "id":1,
-        "name":"batman",
-        "realname":"Bruise Wayne",
-        "city":"Gotham"
-    },
-        {
-        "id":2,
-        "name":"superman",
-        "realname":"Clark Kent",
-        "city":"New York"
-    },
-        {
-        "id":3,
-        "name":"the flash",
-        "realname":"Barry Allen",
-        "city":"Kisumu"
-    }
-]
-
-def user_profile(request):
-    return JsonResponse(users[2])
-
-
-def user_query(request,name):
-    for user in users:
-        if user['name'] == name:
-            return JsonResponse(user)
-        
-def user_filter(request,id):
-   query = {
-        "id": id,
-        "title":"hey there"
-    }
-   return JsonResponse(query)
-
-# class based views can be used to create views with more than one function
-# you can handle all the view requests using class based views
-
-class QueryView(View):
-    def get(self,request):
-        return JsonResponse({"result":users})
-    
-    def post(self,request):
-        return JsonResponse({"status":"ok"})
-
-
+@api_view(['POST'])
 def signup(request):
-    username = request.POST["username"]
-    first_name = request.POST["first_name"]
-    last_name = request.POST["last_name"]
-    phone_number = request.POST("phone_number")
-    password = request.POST["password"]
+    username = request.data.get["username"]
+    first_name = request.data.get["first_name"]
+    last_name = request.data.get["last_name"]
+    phone_number = request.data.get["phone_number"]
+    password = request.data.get["password"]
+
 
     new_user = IMUser.objects.create(
-        username = username,
-        first_name = first_name,
-        last_name = last_name,
-        phone_number = phone_number
-
-    )
-
+        username=username,
+        first_name=first_name,
+        last_name=last_name,
+        phone_number=phone_number
+        )
     new_user.set_password(password)
     new_user.save()
+    new_user.generate_auth_token()
+
+
+class UserViewSet(viewsets.ModelViewSet):
+  
+    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def login(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password', None)
+        player_id = request.data.get('player_id', None)
+    
+        user = authenticate(email=email, password=password)
+        login(request, user)

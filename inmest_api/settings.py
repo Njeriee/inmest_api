@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'users',
-    'main'
+    'main',
+    'rest_framework.authtoken'
 ]
 
 # manage response and security here
@@ -74,7 +75,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'inmest_api.wsgi.application'
 
-
+# django rest authentication settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    
+}
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
@@ -126,3 +139,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+

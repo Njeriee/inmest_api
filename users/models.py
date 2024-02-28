@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import *
+from rest_framework.authtoken.models import Token
 
 # Create your models here.
 class IMUser(AbstractUser):
@@ -22,6 +23,11 @@ class IMUser(AbstractUser):
     
     def _str_(self):
         return f"{self.first_name} {self.last_name}"
+    
+    # token generation function
+    def generate_auth_token(self):
+        token = Token.objects.create(user=self)
+        token.save()
 
 class Cohort(models.Model):
     name = models.CharField(max_length = 50)
@@ -47,5 +53,6 @@ class CohortMember(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
 
 
