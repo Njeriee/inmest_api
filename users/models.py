@@ -1,8 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import *
+from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+# signals are used to listen and perform tasks when an event happens
+from django.db.models.signals import post_save
 
 # Create your models here.
+# update the IMUser model to have the following keys is_blocked,temporal_login_field = interger field and permernent_login_field = integer field
+# is_blocked = boolean field,perform migrations and update the login function in the views
 class IMUser(AbstractUser):
     first_name = models.CharField(max_length=155, blank=True)
     last_name = models.CharField(max_length=155, blank=True)
@@ -16,18 +21,23 @@ class IMUser(AbstractUser):
         ('ADMIN', 'Administrator'),
     ]
 
-    user_type = models.CharField(max_length=20, choices=USER_TYPES, default='EIT')
+    user_type = models.CharField(max_length=20, choices=USER_TYPES, default='EIT',blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     groups = models.ManyToManyField(Group, related_name='imuser_set')
-    user_permissions = models.ManyToManyField(Permission, related_name='imuser_set')
+    user_permissions = models.ManyToManyField(Permission, related_name='imuser_set',blank=True)
+    is_blocked = models.BooleanField(default = True)
+    temporal_login_field = models.IntegerField(default = 0)
+    permernent_login_field = models.IntegerField(default = 0)
     
     def _str_(self):
         return f"{self.first_name} {self.last_name}"
     
-    # token generation function
-    def generate_auth_token(self):
-        token = Token.objects.create(user=self)
-        token.save()
+# token generation function
+@receiver(post_save,sender=IMUser)
+def generate_user_auth_token(sender,instance=None,created=False, **kwargs):
+    if created :
+            token = Token.objects.create(user=instance)
+            token.save()
 
 class Cohort(models.Model):
     name = models.CharField(max_length = 50)

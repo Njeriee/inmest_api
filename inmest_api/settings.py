@@ -56,6 +56,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'inmest_api.urls'
+AUTH_USER_MODEL = "users.IMUser"
 
 TEMPLATES = [
     {
@@ -97,6 +98,7 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation

@@ -2,14 +2,22 @@ from rest_framework import serializers
 
 # refer to user models for fields
 
+
 class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     phone_number = serializers.CharField()
-    username = serializers.CharField()
-    email = serializers.CharField()
+    email = serializers.EmailField()
+    # tHuria@98
 
+class AuthSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    auth_token = serializers.CharField(read_only=True)
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    phone_number = serializers.CharField()
+    email = serializers.EmailField()
 
 class CohortSerializer(serializers.Serializer):
     id = serializers.IntegerField()
