@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from inmest_api.utilities import generate_400_response
 
 from users.serializers import AuthSerializer, UserSerializer
 from .models import *
@@ -6,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 # from django.db.models import Q
 from django.contrib.auth import authenticate, login
-# from rest_framework.views import APIView
+from rest_framework.views import APIView
 from rest_framework import viewsets,status
 from rest_framework.decorators import api_view, permission_classes, action
 
@@ -47,6 +48,8 @@ def login(request):
 
     # validate input
     if not username or password:
+        temporal_login = IMUser.objects.get()
+        temporal_login += 1
         Response({"message":"send details bruh"},status.HTTP_400_BAD_REQUEST)
     
     # 2. Check user existance
@@ -61,5 +64,17 @@ def login(request):
         login(username,password)
         serializer = UserSerializer
     else:
-        return Response({"detail":"Invalid username or password"},status.HTTP_400_BAD_REQUEST)
+        return generate_400_response("Invalid username or password")
 
+
+# class based API view
+class ForgotPasswordAPIView(APIView):
+    def post(self,request):
+        # the process
+        #1. receiving the username in this case an email
+        username = request.data.get("username")
+        if not username :
+            return generate_400_response("invalid username")
+        #2. check if the user exists
+        #3. send OTP code
+        #4. repond to the user
