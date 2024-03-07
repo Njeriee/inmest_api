@@ -13,6 +13,9 @@ class IMUser(AbstractUser):
     last_name = models.CharField(max_length=155, blank=True)
     middle_name = models.CharField(max_length=155, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
+    # unique code is for reseting passwords or otp 
+    # do not add it to the serializer
+    unique_code = models.CharField(max_length=20,blank=True)
 
     USER_TYPES = [
         ('EIT', 'Entrepreneur in training'),
