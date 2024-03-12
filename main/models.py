@@ -54,11 +54,17 @@ class ClassAttendance(models.Model):
         return f"{self.name}"
 
 class Query(models.Model):
+    QUERY_TYPES = (
+        ("FASCILITY","fascility"),
+        ("LOGISTICS","logistics"),
+        ("KITCHEN","kitchen")
+    )
     title = models.CharField(max_length = 100)
     description = models.TextField()
     submitted_by = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='query_submitter')
     assigned_to = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='query_assignee')
     resolution_status = models.TextChoices("PENDING","IN_PROGRESS","DECLINED","RESOLVED")
+    query_types = models.CharField(max_length = 20, choices = QUERY_TYPES,default = "FASCILITY",blank = True,null = True)
     date_created = models.DateTimeField(auto_now_add=True,blank = True,null = True)
     date_modified = models.DateTimeField(auto_now=True,blank = True,null = True)
     author = models.ForeignKey(IMUser, on_delete=models.CASCADE,related_name='query_author')

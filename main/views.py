@@ -1,10 +1,11 @@
 import datetime
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,action
 from rest_framework.response import Response
 from main.models import *
 from main.serialzers import *
+from rest_framework import viewsets
 
 # QUERY SETS
 # Create your views here.
@@ -90,3 +91,23 @@ def create_class_schedule(request):
     return Response({"message":"schedule successfully created","data":serializer.data},status.HTTP_200_OK)
 
 
+class QueryMOdelViewSet(viewsets.ModelViewSet):
+    # all model viewsets are used with actions
+    # actions allow models to define the function they are doing
+    @action(detail=False,methods=['post'])
+    def raise_query(self,request):
+        title = request.data.get("title")
+        # adding none indicates that if no data is provied then the query can be blank
+        description = request.data.get("description",None)
+        query_type = request.data.get("query_type",None)
+        assignee = None
+
+        query = Query.objects.create(
+            title = title,
+            description = description,
+            query_type = query_type,
+            submitted_by = request.user
+        )
+        query.save()
+        # send email to assignee
+        return Response({'message':"query successfully submitted"})

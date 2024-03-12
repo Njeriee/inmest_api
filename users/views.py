@@ -88,40 +88,102 @@ class ForgotPasswordAPIView(APIView):
         #4. repond to the user
         return Response({"detail":"Please check your email for an OTP code"},status.HTTP_200_OK)
 
-# create a reset password api view
-class ResetPasswordAPIView(APIView):
-    # implement a post request to do the following
-    # 1.Receive the following info (username, unique code and new_password) as reqyest payload
-    def post(self,request,*args,**kwargs):
-        username = request.data.get("username")
-        unique_code = request.data.get("unique_code")
-        new_password = request.data.get("new_password")
 
-    # 2.Validate the inputs sent(username ,unique code and new_password)
-        if not username or unique_code or new_password:
-            Response({"detail":"invalid credentials"},status.HTTP_400_BAD_REQUEST)
-    # 3.Check the existance of the user and the unique code
-        
-    # 4.if the user exists update the user password to be the new password
-    pass
+class ResetPassword(APIView):
+    permission_classes = (AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+      
+        unique_code = request.data.get('unique_code')
+        new_password = request.data.get('new_password')
+        username = request.data.get('username')
+
+        if not unique_code:
+            return generate_400_response("Unique Code is required")
+        if username == None or username == "":
+            return generate_400_response("Email is required")
+        if new_password is None:
+            return generate_400_response("Provide password")
+
+        try:
+            myuser = IMUser.objects.get(unique_code=unique_code, username=username)
+            myuser.unique_code = ""
+            myuser.temporal_login_fails = 0
+            myuser.permanent_login_fails = 0
+            myuser.set_password(new_password)
+            myuser.is_active = True
+            myuser.is_blocked = False
+            myuser.save()
+
+            user = AuthSerializer(myuser, context={'request': request})
+            return Response({'results': user.data, 'response_code': '100'}, status=200)
+
+        except IMUser.DoesNotExist:
+            return Response({'detail': "Invalid OTP Code", 'response_code': '101'}, status=400)   
+
+
 
 class CurrentUserProfile(APIView):
-    def get(self,request,*args,**kwargs):
-        user = UserSerializer(request.user,)
-        return Response({'results':user.data})
+
+    def get(self, request, *args, **kwargs):
+        """
+        Fetches a user's profile
+        """
+        user = UserSerializer(request.user, many=False, context={'request': request})
+        return Response({'results': user.data, 'response_code': '100'}, status=200)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Updates a user's profile
+
+        """
+        user = request.user
+        first_name = request.data.get("first_name")
+        profile = request.data
+        # profile.profile_picture = request.data.get("user_avatar")
+
+        try:
+            serializer = UserSerializer(user, context={'request': request}, data=profile, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'results': serializer.data, 'response_code': '100'}, status=200)
+            return Response({'results': serializer.errors, 'response_code': '101'}, status=400)
+        except:
+            serializer = UserSerializer(user, context={'request': request}, data=profile, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'results': serializer.data, 'response_code': '100'}, status=200)
+            serializer = UserSerializer(profile, context={'request': request})
+            return Response({'detail': serializer.errors, 'response_code': '100'}, status=400)
     
-
 class ChangePassword(APIView):
-    def post (self,request):
-        old_password = request.data.get("old_password")
-        new_password = request.data.get("new_password")
-        username = request.user.username
+    """
+    Change password if logged in   
+    """
 
+    def post(self, request, *args, **kwargs):
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        username = request.user.username
         if old_password is None:
-            return Response({'detail':"please provide old password"},status.HTTP_400_BAD_REQUEST)
-        
+            return Response({'detail': "Please provide old password", 'response_code': '101'},
+                            status=400)
         if new_password is None:
-            return Response({'detail':"please provide new password"},status.HTTP_400_BAD_REQUEST)
-        
+            return Response({'detail': "Please provide new password", 'response_code': '101'},
+                            status=400)
         if old_password == new_password:
-            return Response({'detail':"new password cannot be the same as old password"})
+            return Response({'detail': "Old and new passwords must not be same", 'response_code': '101'},
+                            status=400)
+
+        user = authenticate(username=username, password=old_password)
+
+        if user is not None:
+            myuser = request.user
+            myuser.set_password(new_password)
+            myuser.save()
+
+            user = UserSerializer(myuser, context={'request': request})
+            return Response({'results': user.data, 'response_code': '100'}, status=200)
+        else:
+            return Response({'detail': "Your old password is incorrect", 'response_code': '101'},
+                            status=400)
