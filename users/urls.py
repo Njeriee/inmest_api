@@ -9,5 +9,7 @@ urlpatterns = [
     path("signup/",signup),
     # path("user_query/<str:name>",user_query),
     # path("login/",UserViewSet.as_view()),
-    path("forgot_password/",ForgotPasswordAPIView.as_view())
+    path("forgot_password/",ForgotPasswordAPIView.as_view()),
+    path('reset_password/',ResetPasswordAPIView.as_view()),
+    path('me/',CurrentUserProfile.as_view())
 ]

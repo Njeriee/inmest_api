@@ -87,3 +87,41 @@ class ForgotPasswordAPIView(APIView):
         user.save()
         #4. repond to the user
         return Response({"detail":"Please check your email for an OTP code"},status.HTTP_200_OK)
+
+# create a reset password api view
+class ResetPasswordAPIView(APIView):
+    # implement a post request to do the following
+    # 1.Receive the following info (username, unique code and new_password) as reqyest payload
+    def post(self,request,*args,**kwargs):
+        username = request.data.get("username")
+        unique_code = request.data.get("unique_code")
+        new_password = request.data.get("new_password")
+
+    # 2.Validate the inputs sent(username ,unique code and new_password)
+        if not username or unique_code or new_password:
+            Response({"detail":"invalid credentials"},status.HTTP_400_BAD_REQUEST)
+    # 3.Check the existance of the user and the unique code
+        
+    # 4.if the user exists update the user password to be the new password
+    pass
+
+class CurrentUserProfile(APIView):
+    def get(self,request,*args,**kwargs):
+        user = UserSerializer(request.user,)
+        return Response({'results':user.data})
+    
+
+class ChangePassword(APIView):
+    def post (self,request):
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        username = request.user.username
+
+        if old_password is None:
+            return Response({'detail':"please provide old password"},status.HTTP_400_BAD_REQUEST)
+        
+        if new_password is None:
+            return Response({'detail':"please provide new password"},status.HTTP_400_BAD_REQUEST)
+        
+        if old_password == new_password:
+            return Response({'detail':"new password cannot be the same as old password"})
