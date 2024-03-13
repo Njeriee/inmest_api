@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view,action
 from rest_framework.response import Response
+from inmest_api.utilities import generate_200_response
 from main.models import *
 from main.serialzers import *
 from rest_framework import viewsets
@@ -91,23 +92,32 @@ def create_class_schedule(request):
     return Response({"message":"schedule successfully created","data":serializer.data},status.HTTP_200_OK)
 
 
-class QueryMOdelViewSet(viewsets.ModelViewSet):
-    # all model viewsets are used with actions
-    # actions allow models to define the function they are doing
-    @action(detail=False,methods=['post'])
-    def raise_query(self,request):
-        title = request.data.get("title")
-        # adding none indicates that if no data is provied then the query can be blank
-        description = request.data.get("description",None)
-        query_type = request.data.get("query_type",None)
-        assignee = None
+class QueryModelViewSet(viewsets.ModelViewSet):
+    @action(detail=False, methods=["post"])
+    def raise_query(self, request):
 
+        title = request.data.get("title")
+        description = request.data.get("description", None)
+        query_type = request.data.get("query_type", None)
+        assignee = None
+        # if query_type == 'FACILITY':
+        #     assignee = IMUser.objects.get(email="lucky@")
         query = Query.objects.create(
-            title = title,
-            description = description,
-            query_type = query_type,
-            submitted_by = request.user
+            title=title,
+            description=description,
+            query_types=query_type,
+            submitted_by=request.user,
+            author=request.user
         )
         query.save()
-        # send email to assignee
-        return Response({'message':"query successfully submitted"})
+        #send email to the assignee
+        return Response({"message": "Query successfully submitted"})
+    
+    # filter queries function
+    def filter_queries(self,request):
+        search_text = request.data.get("search_text")
+        status = request.data.get("status")
+
+        queryset = Query.objects,all()
+        serializer = QuerySerializer(queryset,many=True)
+        return generate_200_response(serializer.data)

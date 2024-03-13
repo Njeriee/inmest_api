@@ -35,6 +35,17 @@ class ClassScheduleSerializer(serializers.Serializer):
     date_created = serializers.DateTimeField()
 
 # class AttendanceSerializer(serializers.Serializer):
+    
+class QuerySerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    description = serializers.CharField()
+    submitted_by = UserSerializer(many = False)
+    assigned_to = UserSerializer(many = False)
+    resolution_status = serializers.CharField()
+    query_type = serializers.CharField()
+    date_created = serializers.DateTimeField()
+    author = UserSerializer(many = False)
 
 
 

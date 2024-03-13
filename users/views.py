@@ -155,6 +155,7 @@ class CurrentUserProfile(APIView):
                 return Response({'results': serializer.data, 'response_code': '100'}, status=200)
             serializer = UserSerializer(profile, context={'request': request})
             return Response({'detail': serializer.errors, 'response_code': '100'}, status=400)
+   
     
 class ChangePassword(APIView):
     """
